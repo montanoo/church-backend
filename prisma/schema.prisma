@@ -13,3 +13,182 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Bautizo {
+  bautizo_id         Int       @id @default(autoincrement())
+  nombre_bautizado   String
+  fecha_nacimiento   DateTime
+  fecha_bautizo      DateTime
+  parroquia_id       Int
+  parroquia          Parroquia @relation(fields: [parroquia_id], references: [parroquia_id])
+  fechaCreacion      DateTime  @default(now())
+  fechaActualizacion DateTime?
+}
+
+model Confirmacion {
+  confirmacion_id    Int       @id @default(autoincrement())
+  nombre_confirmado  String
+  fecha_nacimiento   DateTime
+  fecha_confirmacion DateTime
+  parroquia_id       Int
+  parroquia          Parroquia @relation(fields: [parroquia_id], references: [parroquia_id])
+  fechaCreacion      DateTime  @default(now())
+  fechaActualizacion DateTime?
+}
+
+model EventoParroquial {
+  evento_id          Int               @id @default(autoincrement())
+  titulo             String
+  descripcion        String
+  fecha_horainicio   DateTime
+  fecha_horafin      DateTime
+  organizador_id     Int
+  salon_id           Int
+  organizador        OrganizadorEvento @relation(fields: [organizador_id], references: [organizador_id])
+  salon              Salon             @relation(fields: [salon_id], references: [salon_id])
+  SyncCalendario     SyncCalendario[]
+  fechaCreacion      DateTime          @default(now())
+  fechaActualizacion DateTime?
+}
+
+model EventoRecurrente {
+  evento_recurrente_id   Int               @id @default(autoincrement())
+  titulo_recurrente      String
+  descripcion_recurrente String
+  dia_semana             String
+  hora_inicio            DateTime
+  hora_fin               DateTime
+  organizador_id         Int
+  salon_id               Int
+  organizador            OrganizadorEvento @relation(fields: [organizador_id], references: [organizador_id])
+  salon                  Salon             @relation(fields: [salon_id], references: [salon_id])
+  fechaCreacion          DateTime          @default(now())
+  fechaActualizacion     DateTime?
+}
+
+model Matrimonio {
+  matrimonio_id      Int       @id @default(autoincrement())
+  nombre_esposo      String
+  nombre_esposa      String
+  fecha_matrimonio   DateTime
+  parroquia_id       Int
+  parroquia          Parroquia @relation(fields: [parroquia_id], references: [parroquia_id])
+  fechaCreacion      DateTime  @default(now())
+  fechaActualizacion DateTime?
+}
+
+model NotificacionReserva {
+  notificacion_id    Int            @id @default(autoincrement())
+  reserva_id         Int
+  tipo_notificacion  String
+  fecha_notificacion DateTime
+  reserva            ReservaSalones @relation(fields: [reserva_id], references: [reserva_id])
+  fechaCreacion      DateTime       @default(now())
+  fechaActualizacion DateTime?
+}
+
+model OrganizadorEvento {
+  organizador_id     Int                @id @default(autoincrement())
+  nombre             String
+  email              String
+  telefono           String
+  eventos            EventoParroquial[]
+  eventosRecurrentes EventoRecurrente[]
+  fechaCreacion      DateTime           @default(now())
+  fechaActualizacion DateTime?
+}
+
+model Parroquia {
+  parroquia_id        Int               @id @default(autoincrement())
+  nombre_parroquia    String
+  ubicacion_parroquia String
+  bautizos            Bautizo[]
+  confirmaciones      Confirmacion[]
+  matrimonios         Matrimonio[]
+  comuniones          PrimeraComunion[]
+  salones             Salon[]
+  fechaCreacion       DateTime          @default(now())
+  fechaActualizacion  DateTime?
+}
+
+model PrimeraComunion {
+  comunion_id        Int       @id @default(autoincrement())
+  nombre_comunion    String
+  fecha_nacimiento   DateTime
+  fecha_comunion     DateTime
+  parroquia_id       Int
+  parroquia          Parroquia @relation(fields: [parroquia_id], references: [parroquia_id])
+  fechaCreacion      DateTime  @default(now())
+  fechaActualizacion DateTime?
+}
+
+model ReservaSalones {
+  reserva_id         Int                     @id @default(autoincrement())
+  salon_id           Int
+  usuario_id         Int
+  fecha_inicio       DateTime
+  fecha_fin          DateTime
+  contrato_alquiler  String
+  salon              Salon                   @relation(fields: [salon_id], references: [salon_id])
+  usuario            Usuario                 @relation(fields: [usuario_id], references: [usuario_id])
+  transacciones      TransaccionFinanciera[]
+  notificaciones     NotificacionReserva[]
+  fechaCreacion      DateTime                @default(now())
+  fechaActualizacion DateTime?
+}
+
+model Salon {
+  salon_id           Int                @id @default(autoincrement())
+  nombre_salon       String
+  capacidad          Int?
+  parroquia_id       Int
+  parroquia          Parroquia          @relation(fields: [parroquia_id], references: [parroquia_id])
+  eventos            EventoParroquial[]
+  eventosRecurrentes EventoRecurrente[]
+  reservas           ReservaSalones[]
+  fechaCreacion      DateTime           @default(now())
+  fechaActualizacion DateTime?
+}
+
+model SyncCalendario {
+  sync_id        Int              @id @default(autoincrement())
+  correo_usuario String
+  evento_id      Int
+  evento         EventoParroquial @relation(fields: [evento_id], references: [evento_id])
+}
+
+model Token {
+  id                 Int      @id @default(autoincrement())
+  token              String
+  refrescar_token    String
+  activo             Boolean
+  fechaCreacion      DateTime @default(now())
+  fechaEliminacion   DateTime
+  fechaActualizacion DateTime
+  usuario_id         Int
+  usuario            Usuario  @relation(fields: [usuario_id], references: [usuario_id])
+}
+
+model TransaccionFinanciera {
+  transaccion_id     Int            @id @default(autoincrement())
+  tipo               String
+  monto              Float
+  descripcion        String
+  fecha_transaccion  DateTime
+  categoria          String
+  reserva_id         Int
+  reserva            ReservaSalones @relation(fields: [reserva_id], references: [reserva_id])
+  fechaCreacion      DateTime       @default(now())
+  fechaActualizacion DateTime?
+}
+
+model Usuario {
+  usuario_id         Int              @id @default(autoincrement())
+  nombre_usuario     String
+  email              String
+  password           String
+  rol                String
+  reservas           ReservaSalones[]
+  tokens             Token[]
+  fechaCreacion      DateTime         @default(now())
+  fechaActualizacion DateTime?
+}
