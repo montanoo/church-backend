@@ -157,15 +157,15 @@ model SyncCalendario {
 }
 
 model Token {
-  id                 Int      @id @default(autoincrement())
+  id                 Int       @id @default(autoincrement())
   token              String
   refrescar_token    String
-  activo             Boolean
-  fechaCreacion      DateTime @default(now())
-  fechaEliminacion   DateTime
-  fechaActualizacion DateTime
+  activo             Boolean   @default(true)
+  fechaCreacion      DateTime  @default(now())
+  fechaEliminacion   DateTime?
+  fechaActualizacion DateTime?
   usuario_id         Int
-  usuario            Usuario  @relation(fields: [usuario_id], references: [usuario_id])
+  usuario            Usuario   @relation(fields: [usuario_id], references: [usuario_id])
 }
 
 model TransaccionFinanciera {
